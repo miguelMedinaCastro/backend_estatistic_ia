@@ -10,7 +10,11 @@ console.log("Chave da OpenAI:", process.env.OPENAI_API_KEY ? "OK" : "NÃO DEFINI
 
 
 const app = express();
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+  origin: 'https://estatisticia-eta.vercel.app'
+}));
+
 app.use(bodyParser.json());
 
 const openai = new OpenAI({
