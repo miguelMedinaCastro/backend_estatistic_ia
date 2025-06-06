@@ -63,4 +63,4 @@ app.post("/api/plan", async (req, res) => {
 });
 
 // Use module.exports para exportar o app para a Vercel
-module.exports = serverless(app);
+module.exports = require("serverless-http")(app);
