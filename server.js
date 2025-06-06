@@ -10,7 +10,7 @@ dotenv.config();
 const app = express();
 
 const corsOptions = {
-  origin: 'https://estatisticia-eta.vercel.app',
+  origin: 'https://estatisticia-eta.vercel.app/gerar-plano-aula',
   optionsSuccessStatus: 200,
 };
 
