@@ -12,7 +12,7 @@ const app = express();
 // --- Configuração de CORS ajustada ---
 // Garante que os pedidos de pre-voo (OPTIONS) sejam tratados corretamente
 const corsOptions = {
-  origin: '*',
+  origin: 'https://estatisticia-eta.vercel.app', // URL do seu frontend
   methods: ['POST', 'GET', 'OPTIONS'], // Permite os métodos necessários
   allowedHeaders: ['Content-Type', 'Authorization'], // Permite os cabeçalhos necessários
 };
@@ -28,6 +28,14 @@ if (!process.env.OPENAI_API_KEY) {
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
+
+app.options('*', (req, res) => {
+  res.header("Access-Control-Allow-Origin", "https://estatisticia-eta.vercel.app");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.sendStatus(200);
+});
+
 
 app.post("/api/plan", async (req, res) => {
   const { prompt, model } = req.body;
