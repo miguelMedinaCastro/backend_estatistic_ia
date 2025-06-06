@@ -1,35 +1,58 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const { OpenAI } = require("openai");
-const serverless = require("serverless-http");
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import { OpenAI } from "openai";
+import bodyParser from "body-parser";
 
 dotenv.config();
 
+console.log("Chave da OpenAI:", process.env.OPENAI_API_KEY ? "OK" : "NÃO DEFINIDA");
+
 const app = express();
-
-app.use(cors({ origin: '*' }));
-app.use(express.json());
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-app.post("/api/plan", async (req, res) => {
-  const { prompt } = req.body;
-  if (!prompt) return res.status(400).json({ error: "prompt é obrigatório" });
-
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: "Você gera planos de aula baseados na BNCC." },
-        { role: "user", content: prompt }
-      ]
-    });
-    res.json({ result: response.choices[0].message.content });
-  } catch (error) {
-    console.error("Erro OpenAI:", error.response?.data || error.message || error);
-    res.status(500).json({ error: "Erro interno no servidor" });
-  }
+app.use(bodyParser.json());
+app.use((req, res) => {
+  res.header("Acess-Control-Allow-Origin", "estatisticia-production.up.railway.app");
+  res.header("Acess-Control-Allow-Methods", "GET", "POST");
 });
 
-module.exports.handler = serverless(app);
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
+
+app.post("/api/plan", async (req, res) => {
+    const { prompt, model } = req.body;
+
+    if (!prompt) {
+        return res.status(400).json({error: "prompt é obrigatório"});
+    }
+
+    const allowedModels = ["gpt-3.5.turbo", "gpt-4", "gpt-4o"];
+    const chosenModel = allowedModels.includes(model) ? model: "gpt-3.5-turbo";
+
+    try {
+        const response = await openai.chat.completions.create({
+            model: chosenModel,
+            messages: [
+                {
+                    role: "system",
+                    content: "Você é um gerador de planos de aula baseado na BNCC com foco em dados estatísticos. Serão informados o número de alunos,o grau de ensino da turma(ensino fundamental ou ensino médio) e o tema da aula"
+                },
+                {
+                    role: "user",
+                    content: prompt
+                }
+            ],
+
+            temperature: 0.7
+        });
+
+        res.json({ result: response.choices[0].message.content })
+    } catch (error) {
+     console.error(error);
+     res.status(500).json({error: "erro ao gerar plano de aula"});   
+    }
+});
+
+app.listen(process.env.PORT, () => {
+    console.log(`servidor rodando em http://localhost:${process.env.PORT}`);
+})
