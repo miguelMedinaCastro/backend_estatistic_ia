@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { OpenAI } from "openai";
-import bodyParser from "body-parser";
 import serverless from "serverless-http";
 
 dotenv.config();
@@ -13,8 +12,9 @@ const corsOptions = {
   origin: 'https://estatisticia-eta.vercel.app',
   optionsSuccessStatus: 200,
 };
+
 app.use(cors(corsOptions));
-app.use(bodyParser.json());
+app.use(express.json());
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -49,9 +49,13 @@ app.post("/api/plan", async (req, res) => {
 
     res.json({ result: response.choices[0].message.content });
   } catch (error) {
-    console.error(error);
+    console.error("Erro na OpenAI:", error);
+    if (error.response) {
+      console.error("Resposta do OpenAI:", error.response.data);
+    }
     res.status(500).json({ error: "erro ao gerar plano de aula" });
   }
 });
 
-export const handler = serverless(app);
+export default serverless(app);
+
