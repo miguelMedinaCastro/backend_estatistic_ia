@@ -2,11 +2,11 @@
   "name": "api",
   "version": "1.0.0",
   "description": "",
-  "main": "api/plan.js",
+  "main": "plan.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node api/plan.js",
-    "dev": "nodemon api/plan.js"
+    "start": "node plan.js",
+    "dev": "nodemon plan.js"
   },
   "keywords": [],
   "author": "",
