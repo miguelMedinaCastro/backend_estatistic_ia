@@ -12,7 +12,7 @@ const app = express();
 // --- Configuração de CORS ajustada ---
 // Garante que os pedidos de pre-voo (OPTIONS) sejam tratados corretamente
 const corsOptions = {
-  origin: 'https://estatisticia-eta.vercel.app', // URL do seu frontend
+  origin: 'https://estatisticia-eta.vercel.app/gerar-plano-aula', // URL do seu frontend
   methods: ['POST', 'GET', 'OPTIONS'], // Permite os métodos necessários
   allowedHeaders: ['Content-Type', 'Authorization'], // Permite os cabeçalhos necessários
 };
