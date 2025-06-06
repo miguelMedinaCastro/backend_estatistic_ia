@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { OpenAI } from "openai";
 import serverless from "serverless-http";
 
+
 dotenv.config();
 
 const app = express();
