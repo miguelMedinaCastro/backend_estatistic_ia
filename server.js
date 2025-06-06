@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { OpenAI } from "openai";
 import bodyParser from "body-parser";
+import serverless from "serverless-http";
 
 dotenv.config();
 
@@ -13,7 +14,6 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
-
 app.use(bodyParser.json());
 
 const openai = new OpenAI({
@@ -27,7 +27,7 @@ app.post("/api/plan", async (req, res) => {
     return res.status(400).json({ error: "prompt é obrigatório" });
   }
 
-  const allowedModels = ["gpt-3.5.turbo", "gpt-4", "gpt-4o"];
+  const allowedModels = ["gpt-3.5-turbo", "gpt-4", "gpt-4o"];
   const chosenModel = allowedModels.includes(model) ? model : "gpt-3.5-turbo";
 
   try {
@@ -54,4 +54,4 @@ app.post("/api/plan", async (req, res) => {
   }
 });
 
-export default app;
+export const handler = serverless(app);
