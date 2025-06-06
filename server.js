@@ -1,21 +1,29 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import { OpenAI } from "openai";
-import serverless from "serverless-http";
-
+// Use o formato CommonJS (require) que é mais padrão na Vercel
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const { OpenAI } = require("openai");
+const serverless = require("serverless-http");
 
 dotenv.config();
 
 const app = express();
 
+// --- Configuração de CORS ajustada ---
+// Garante que os pedidos de pre-voo (OPTIONS) sejam tratados corretamente
 const corsOptions = {
-  origin: 'https://estatisticia-eta.vercel.app/gerar-plano-aula',
-  optionsSuccessStatus: 200,
+  origin: 'https://estatisticia-eta.vercel.app', // URL do seu frontend
+  methods: ['POST', 'GET', 'OPTIONS'], // Permite os métodos necessários
+  allowedHeaders: ['Content-Type', 'Authorization'], // Permite os cabeçalhos necessários
 };
 
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Verifica se a chave da API foi carregada
+if (!process.env.OPENAI_API_KEY) {
+  console.error("ERRO: A variável de ambiente OPENAI_API_KEY não foi definida!");
+}
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -37,8 +45,7 @@ app.post("/api/plan", async (req, res) => {
       messages: [
         {
           role: "system",
-          content:
-            "Você é um gerador de planos de aula baseado na BNCC com foco em dados estatísticos. Serão informados o número de alunos,o grau de ensino da turma(ensino fundamental ou ensino médio) e o tema da aula"
+          content: "Você é um gerador de planos de aula baseado na BNCC com foco em dados estatísticos. Serão informados o número de alunos,o grau de ensino da turma(ensino fundamental ou ensino médio) e o tema da aula"
         },
         {
           role: "user",
@@ -48,15 +55,12 @@ app.post("/api/plan", async (req, res) => {
       temperature: 0.7
     });
 
-    res.json({ result: response.choices[0].message.content });
+    return res.json({ result: response.choices[0].message.content });
   } catch (error) {
-    console.error("Erro na OpenAI:", error);
-    if (error.response) {
-      console.error("Resposta do OpenAI:", error.response.data);
-    }
-    res.status(500).json({ error: "erro ao gerar plano de aula" });
+    console.error("Erro na chamada da API OpenAI:", error);
+    return res.status(500).json({ error: "Erro ao se comunicar com a OpenAI." });
   }
 });
 
-export default serverless(app);
-
+// Use module.exports para exportar o app para a Vercel
+module.exports = serverless(app);
